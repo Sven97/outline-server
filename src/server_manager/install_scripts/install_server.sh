@@ -249,21 +249,21 @@ function join() {
 function write_config() {
   declare -a config=()
   if [[ $FLAGS_KEYS_PORT != 0 ]]; then
-    config+=("\"portForNewAccessKeys\":$FLAGS_KEYS_PORT")
+    config+=("\"portForNewAccessKeys\": $FLAGS_KEYS_PORT")
   fi
-  if [[ ${#config[@]} > 0 ]]; then
-    echo "{"$(join , "${config[@]}")"}" > $STATE_DIR/shadowbox_server_config.json
-  fi
+  # printf is needed to escape the hostname.
+  config+=("$(printf '"hostname": "%q"' ${PUBLIC_HOSTNAME})")
+  echo "{"$(join , "${config[@]}")"}" > $STATE_DIR/shadowbox_server_config.json
 }
 
 function start_shadowbox() {
-  # TODO(fortuna): Write PUBLIC_HOSTNAME and API_PORT to config file,
+  # TODO(fortuna): Write API_PORT to config file,
   # rather than pass in the environment.
   declare -a docker_shadowbox_flags=(
     --name shadowbox --restart=always --net=host
+    --label=com.centurylinklabs.watchtower.enable=true
     -v "${STATE_DIR}:${STATE_DIR}"
     -e "SB_STATE_DIR=${STATE_DIR}"
-    -e "SB_PUBLIC_IP=${PUBLIC_HOSTNAME}"
     -e "SB_API_PORT=${API_PORT}"
     -e "SB_API_PREFIX=${SB_API_PREFIX}"
     -e "SB_CERTIFICATE_FILE=${SB_CERTIFICATE_FILE}"
@@ -296,7 +296,7 @@ function start_watchtower() {
   docker_watchtower_flags+=(-v /var/run/docker.sock:/var/run/docker.sock)
   # By itself, local messes up the return code.
   local readonly STDERR_OUTPUT
-  STDERR_OUTPUT=$(docker run -d "${docker_watchtower_flags[@]}" v2tec/watchtower --cleanup --tlsverify --interval $WATCHTOWER_REFRESH_SECONDS 2>&1 >/dev/null)
+  STDERR_OUTPUT=$(docker run -d "${docker_watchtower_flags[@]}" containrrr/watchtower --cleanup --label-enable --tlsverify --interval $WATCHTOWER_REFRESH_SECONDS 2>&1 >/dev/null)
   local readonly RET=$?
   if [[ $RET -eq 0 ]]; then
     return 0
@@ -330,7 +330,8 @@ function add_api_url_to_config() {
 }
 
 function check_firewall() {
-  local readonly ACCESS_KEY_PORT=$(curl --insecure -s ${LOCAL_API_URL}/access-keys | 
+  # TODO(cohenjon) This is incorrect if access keys are using more than one port.
+  local readonly ACCESS_KEY_PORT=$(curl --insecure -s ${LOCAL_API_URL}/access-keys |
       docker exec -i shadowbox node -e '
           const fs = require("fs");
           const accessKeys = JSON.parse(fs.readFileSync(0, {encoding: "utf-8"}));
@@ -448,9 +449,6 @@ function parse_flags() {
   params=$(getopt --longoptions hostname:,api-port:,keys-port: -n $0 -- $0 "$@")
   [[ $? == 0 ]] || exit 1
   eval set -- $params
-  declare -g FLAGS_HOSTNAME=""
-  declare -gi FLAGS_API_PORT=0
-  declare -gi FLAGS_KEYS_PORT=0
 
   while [[ "$#" > 0 ]]; do
     local flag=$1
@@ -495,6 +493,9 @@ function parse_flags() {
 
 function main() {
   trap finish EXIT
+  declare FLAGS_HOSTNAME=""
+  declare -i FLAGS_API_PORT=0
+  declare -i FLAGS_KEYS_PORT=0
   parse_flags "$@"
   install_shadowbox
 }

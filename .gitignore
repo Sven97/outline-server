@@ -4,3 +4,5 @@
 node_modules/
 /src/server_manager/install_scripts/do_install_script.ts
 yarn-error.log
+.vscode/
+.idea/

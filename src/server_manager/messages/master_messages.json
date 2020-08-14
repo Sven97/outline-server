@@ -33,9 +33,9 @@
       }
     }
   },
-  "aws_group_assign_0": {
-    "message": "Navigate to $START_OF_LINK$Instances$END_OF_LINK$.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a security group in Amazon Web Services.",
+  "aws_lightsail_firewall_0": {
+    "message": "Navigate to the $START_OF_LINK$Amazon Lightsail$END_OF_LINK$ instances screen.",
+    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure firewall rules in Amazon Lightsail. Amazon Lightsail is a product name and should not be translated.",
     "placeholders": {
       "END_OF_LINK": {
         "content": "{closeLink}"
@@ -45,49 +45,25 @@
       }
     }
   },
-  "aws_group_assign_1": {
-    "message": "Click 'Actions' > 'Networking' > 'Change Security Groups' at the top of the 'Instances' screen.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a security group in Amazon Web Services. Words in quotes should be translated and included untranslated in parentheses."
+  "aws_lightsail_firewall_1": {
+    "message": "Click the instance on which you want to host Outline.",
+    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure firewall rules in Amazon Lightsail."
   },
-  "aws_group_assign_2": {
-    "message": "Select the 'outline' Security Group, unselect other security groups.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a security group in Amazon Web Services. 'Security Group' should be translated and included untranslated in parentheses."
+  "aws_lightsail_firewall_2": {
+    "message": "Navigate to the 'Networking' tab.",
+    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure firewall rules in Amazon Lightsail.. 'Networking' should be translated and included untranslated in parentheses."
   },
-  "aws_group_assign_3": {
-    "message": "Click 'Assign Security Groups'.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a security group in Amazon Web Services. 'Assign Security Groups' should be translated and included untranslated in parentheses."
+  "aws_lightsail_firewall_3": {
+    "message": "In the 'Firewall' section, click 'Add another'.",
+    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure firewall rules in Amazon Lightsail. Words in quotes should be translated and included untranslated in parentheses."
   },
-  "aws_group_create_0": {
-    "message": "Once you've created your EC2 instance, open the $START_OF_LINK$EC2 Management Console$END_OF_LINK$.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a security group in Amazon Web Services. EC2 is a product name and should not be translated.",
-    "placeholders": {
-      "END_OF_LINK": {
-        "content": "{closeLink}"
-      },
-      "START_OF_LINK": {
-        "content": "{openLink}"
-      }
-    }
+  "aws_lightsail_firewall_4": {
+    "message": "Set 'Application' value to 'All TCP+UDP'.",
+    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure firewall rules in Amazon Lightsail. Words in quotes should be translated and included untranslated in parentheses."
   },
-  "aws_group_create_1": {
-    "message": "Under 'Network & Security', select 'Security Groups'.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a security group in Amazon Web Services. Phrases in quotes should be translated and included untranslated in parentheses."
-  },
-  "aws_group_create_2": {
-    "message": "Click on 'Create Security Group'.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a security group in Amazon Web Services. 'Create Security Group' should be translated and included untranslated in parentheses."
-  },
-  "aws_group_create_3": {
-    "message": "Type 'outline' in the 'Security group name' and 'Description' fields.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a security group in Amazon Web Services. Phrases in quotes should be translated and included untranslated in parentheses."
-  },
-  "aws_group_create_4": {
-    "message": "Click 'Add Rule'.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a security group in Amazon Web Services. 'Add rule' should be translated and included untranslated in parentheses."
-  },
-  "aws_group_create_5": {
-    "message": "Select 'All traffic' under 'Type', and 'Anywhere' under 'Source'.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a security group in Amazon Web Services. Phrases in quotes should be translated and included untranslated in parentheses."
+  "aws_lightsail_firewall_5": {
+    "message": "Click 'Save'.",
+    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure firewall rules in Amazon Lightsail. Words in quotes should be translated and included untranslated in parentheses."
   },
   "cancel": {
     "message": "Cancel",
@@ -145,6 +121,48 @@
     "message": "Remove Server?",
     "description": "This string appears in a dialog that requests user confirmation for removing a server from the application. 'Remove' in this context does not imply server deletion."
   },
+  "data_limits": {
+    "message": "Data limits",
+    "description": "This string appears as a title in a section to configure access key data transfer limits."
+  },
+  "data_limits_description": {
+    "message": "Set a 30 day trailing data transfer limit for access keys on this server.",
+    "description": "This string appears as an explanation to the access key data transfer limits feature."
+  },
+  "data_limits_dialog_text": {
+    "message": "Go to the Settings tab to set a data transfer limit for access keys on this server.",
+    "description": "This string appears as a text in a dialog to advertise the data limits feature."
+  },
+  "data_limits_dialog_title": {
+    "message": "Avoid data overages",
+    "description": "This string appears as a title in a dialog to advertise the data limits feature."
+  },
+  "data_limits_disclaimer": {
+    "message": "Since you are currently reporting metrics, use of the data limits feature will be included. Please see the $START_OF_LINK$data collection policy$END_OF_LINK$ for more details.",
+    "description": "This string provides a data collection disclaimer to opting into the data limits features.",
+    "placeholders": {
+      "END_OF_LINK": {
+        "content": "{closeLink}"
+      },
+      "START_OF_LINK": {
+        "content": "{openLink}"
+      }
+    }
+  },
+  "data_limits_usage": {
+    "message": "$USED$ of $TOTAL$ used",
+    "description": "This string appears in a tooltip when the data limits feature is enabled. It lets the user know how much data an access key has used, relative to the limit.",
+    "placeholders": {
+      "USED": {
+        "content": "{used}",
+        "example": "10 GB"
+      },
+      "TOTAL": {
+        "content": "{total}",
+        "example": "50 GB"
+      }
+    }
+  },
   "destroy": {
     "message": "Destroy",
     "description": "This string appears as a button in a dialog that requests user confirmation for destroying a server. Clicking the button causes the server to be deleted."
@@ -161,9 +179,17 @@
     "message": "This error may be due to a firewall on your network or temporary connectivity issues with digitalocean.com.",
     "description": "This string appears in a dialog as a paragraph. It is shown when a DigitalOcean server cannot be reached. DigitalOcean is a cloud server provider."
   },
+  "disabled": {
+    "message": "Disabled",
+    "description": "This string appears across the application as a drop-down menu option. It allows the user to deactivate features."
+  },
   "done": {
     "message": "Done",
     "description": "This string appears across the application as a button. It lets the user indicate that an action, such as entering text or reading a dialog, has been completed."
+  },
+  "enabled": {
+    "message": "Enabled",
+    "description": "This string appears across the application as a drop-down menu option. It allows the user to activate features."
   },
   "error_connectivity": {
     "message": "We're having trouble connecting to your DigitalOcean account. This is sometimes a temporary problem with DigitalOcean or with your internet connection. If retrying doesn't work, logging into DigitalOcean again should fix the problem.",
@@ -189,6 +215,10 @@
     "message": "Failed to submit feedback. Please try again.",
     "description": "This string appears in an error notification toast. It is shown when there is an error submitting the user's feedback."
   },
+  "error_hostname_invalid": {
+    "message": "Must be an IP address or valid hostname.",
+    "description": "This string appears in an inline error message.  It signifies that the user has input an invalid hostname."
+  },
   "error_key_add": {
     "message": "Failed to add key",
     "description": "This string appears in an error notification toast. It is shown when there is an error creating a server access key."
@@ -205,6 +235,14 @@
     "message": "Could not load keys",
     "description": "This string appears in an error notification toast. It is shown when there is an error retrieving a server access keys."
   },
+  "error_keys_port_bad_input": {
+    "message": "The port must be an integer between 1 and 65,535.",
+    "description": "This string appears in an inline error message.  It signifies that the input number for the port for new access keys is invalid."
+  },
+  "error_keys_port_in_use": {
+    "message": "The port is already in use on the server.",
+    "description": "This string appears in an inline error message.  It signifies that the input port for new access keys is already being used on the server and is unavailable."
+  },
   "error_licenses": {
     "message": "Could not load licenses.",
     "description": "This string appears in a dialog that shows the application's software licenses. It is shown instead of the licenses' text when loading them fails."
@@ -212,6 +250,14 @@
   "error_metrics": {
     "message": "Error setting metrics enabled",
     "description": "This string appears in an error notification toast. It is shown when there is an error enabling or disabling a server's metrics reporting."
+  },
+  "error_network": {
+    "message": "A network error occurred.",
+    "description": "This string indicates that an error happened due to network errors like not being connected to the internet."
+  },
+  "error_not_saved": {
+    "message": "Not Saved",
+    "description": "This string appears in an error notification toast.  It signifies failure to submit user input to change the port number for new access keys."
   },
   "error_server_creation": {
     "message": "There was an error creating your Outline server.",
@@ -250,6 +296,50 @@
       "SERVER_NAMES": {
         "content": "{serverNames}",
         "example": "New York Outline Server, Amsterdam Outline Server"
+      }
+    }
+  },
+  "error_unexpected": {
+    "message": "An unexpected error occurred.",
+    "description": "This string signifies that an error we didn't expect was encountered."
+  },
+  "error_set_data_limit": {
+    "message": "Could not set access key data limit",
+    "description": "This string appears in an error notification toast. It is shown on failure to set a data transfer limit on access keys."
+  },
+  "error_remove_data_limit": {
+    "message": "Could not disable access key data limit",
+    "description": "This string appears in an error notification toast. It is shown on failure to remove a data transfer limit on access keys."
+  },
+  "experiments": {
+    "message": "Experiments",
+    "description": "This string is the title of a section that displays opt-in experimental features."
+  },
+  "experiments_description": {
+    "message": "Test new features and provide us with feedback before they are released.",
+    "description": "This string is the description of a section that displays opt-in experimental features."
+  },
+  "experiments_disclaimer": {
+    "message": "Experiments are in development and may change or be removed from the app. If you are currently reporting metrics, use of experimental features will be included. Please see the $START_OF_LINK$data collection policy$END_OF_LINK$ for more details.",
+    "description": "This string provides a disclaimer to opting into experimental features.",
+    "placeholders": {
+      "END_OF_LINK": {
+        "content": "{closeLink}"
+      },
+      "START_OF_LINK": {
+        "content": "{openLink}"
+      }
+    }
+  },
+  "experiments_feedback": {
+    "message": "Have suggestions? $START_OF_LINK$Submit feedback here.$END_OF_LINK$",
+    "description": "This string appears in a section that allows the user to enable experimental features. Allows the user to submit feedback about a particular feature.",
+    "placeholders": {
+      "END_OF_LINK": {
+        "content": "{closeLink}"
+      },
+      "START_OF_LINK": {
+        "content": "{openLink}"
       }
     }
   },
@@ -333,9 +423,13 @@
     "message": "Outline Server Installation Failed",
     "description": "This string appears in the feedback dialog as a header. The feedback dialog gets automatically displayed with this header when a server installation fails."
   },
-  "gcp_firewall_assign_0": {
-    "message": "Navigate to the $START_OF_LINK$VM instances screen$END_OF_LINK$.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a firewall in Google Cloud Platform.",
+  "gcp_click_create": {
+    "message": "Click 'Create'.",
+    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a firewall in Google Cloud Platform. 'Create' should be translated and included untranslated in parentheses."
+  },
+  "gcp_create_new_project": {
+    "message": "$START_OF_LINK$Create a new Google Cloud Project$END_OF_LINK$.",
+    "description": "This string appears in the server setup view as a card header for creating a new Google Cloud project",
     "placeholders": {
       "END_OF_LINK": {
         "content": "{closeLink}"
@@ -345,21 +439,29 @@
       }
     }
   },
-  "gcp_firewall_assign_1": {
-    "message": "Click on the instance where you want to host Outline.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a firewall in Google Cloud Platform."
+  "gcp_create_new_vm": {
+    "message": "$START_OF_LINK$Create a new VM instance$END_OF_LINK$.",
+    "description": "This string appears in the server setup view as an section header for instructions for creating a VM on Google Cloud.",
+    "placeholders": {
+      "END_OF_LINK": {
+        "content": "{closeLink}"
+      },
+      "START_OF_LINK": {
+        "content": "{openLink}"
+      }
+    }
   },
-  "gcp_firewall_assign_2": {
-    "message": "Click 'EDIT' at the top of the VM Instance details screen.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a firewall in Google Cloud Platform. 'EDIT' should be translated and included untranslated in parentheses. VM is an acronym for virtual machine."
+  "gcp_create_project": {
+    "message": "Create a Google Cloud project",
+    "description": "This string appears as a header of a set of instructions for creating a new Google Cloud project"
   },
-  "gcp_firewall_assign_3": {
-    "message": "Type 'outline' in the 'Network tags' field.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a firewall in Google Cloud Platform. 'Network tags' should be translated and included untranslated in parentheses."
+  "gcp_create_server": {
+    "message": "Create your Google Cloud Project",
+    "description": "This string appears in the server setup view as a section header for creating a new Google Cloud project"
   },
-  "gcp_firewall_assign_4": {
-    "message": "Click 'SAVE'.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a firewall in Google Cloud Platform. 'SAVE' should be translated and included untranslated in parentheses."
+  "gcp_create_vm": {
+    "message": "Create a VM Instance",
+    "description": "This string appears as a header for a set of instructions for creating a new Google Cloud VM"
   },
   "gcp_firewall_create_0": {
     "message": "$START_OF_LINK$Add a new firewall rule$END_OF_LINK$ to your Compute Engine project.",
@@ -389,13 +491,39 @@
     "message": "Select 'Allow all' under 'Protocols and ports'.",
     "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a firewall in Google Cloud Platform. 'Allow all' and 'Protocols and ports' should be translated and included untranslated in parentheses."
   },
-  "gcp_firewall_create_5": {
-    "message": "Click 'Create'.",
-    "description": "This string appears within the server setup view as an item of a list that provides instructions to configure a firewall in Google Cloud Platform. 'Create' should be translated and included untranslated in parentheses."
+  "gcp_name_your_project": {
+    "message": "Name your project in the 'Project name' field.",
+    "description": "This string appears as instructions for naming a new Google Cloud Project.  'Project Name' should be translated and include untranslated in parentheses"
+  },
+  "gcp_select_machine_type": {
+    "message": "Select 'f1-micro' under 'Machine type'",
+    "description": "This string appears as an instruction for selecting the machine type for a new Google Cloud VM.  'Machine type' should be translated and include untranslated in parentheses."
+  },
+  "gcp_select_networking": {
+    "message": "Click 'Management, security, disks, networking, sole tenancy', then 'Networking'",
+    "description": "This string appears as an instruction to find  the networking options when creating a new Google Cloud VM.  'Management, security, disks, networking, sole tenancy' and 'Networking' should match that used in the Google Cloud Console should be translated and included untranslated in parentheses."
+  },
+  "gcp_select_region": {
+    "message": "Select a region close to where the server's users will be under 'Region'.",
+    "description": "This string appears as an instruction for selecting a region for a new Google Cloud VM.  'Region' should be translated and include untranslated in parentheses."
+  },
+  "gcp_type_network_tag": {
+    "message": "Type 'outline' in the 'Network tags' field",
+    "description": "This string appears as an instruction for specifying a network tag in a new Google Cloud VM.  'Network tags' should be translated and include untranslated in parentheses"
+  },
+  "gcp_type_outline_server": {
+    "message": "Type 'outline-server' in the 'Name' field.",
+    "description": "This string is an instruction in directions for creating a new Google Cloud VM.  'Name' should be translated and include untranslated in parentheses"
   },
   "key": {
-    "message": "Key",
-    "description": "This string appears in the server view as a placeholder for a newly created access key."
+    "message": "Key $KEY_ID$",
+    "description": "This string appears in the server view as a placeholder for a newly created access key with id number KEY_ID.",
+    "placeholders": {
+      "KEY_ID": {
+        "content": "{keyId}",
+        "example": "1"
+      }
+    }
   },
   "manual_server_assign_firewall": {
     "message": "Assign firewall rule",
@@ -536,7 +664,7 @@
     "description": "This string appears in the DigitalOcean account creation flow as a paragraph. Displayed when the user's DigitalOcean account has been successfully activated."
   },
   "oauth_activate_account": {
-    "message": "Activate you DigitalOcean account.",
+    "message": "Activate your DigitalOcean account.",
     "description": "This string appears in the DigitalOcean account creation flow as a header. Displayed when the account has been created but not yet active. DigitalOcean is a cloud provider name and should not be translated."
   },
   "oauth_billing": {
@@ -571,10 +699,6 @@
     "message": "Confirm your email...",
     "description": "This string appears in the DigitalOcean account creation flow as a paragraph. Displayed when the user has not yet confirmed the registered email for their DigitalOcean account."
   },
-  "oauth_verify_title": {
-    "message": "Activate you DigitalOcean account.",
-    "description": "This string appears in the DigitalOcean account creation flow as a title. Displayed when the user has not yet activated their DigitalOcean account."
-  },
   "okay": {
     "message": "OK",
     "description": "This string appears across the application as a button. It lets the user acknowledge displayed information. Clicking dismisses the enclosing UI element."
@@ -598,6 +722,18 @@
   "retry": {
     "message": "Retry",
     "description": "This string appears across the application as a button. It allows the user to retry a failed operation."
+  },
+  "save": {
+    "message": "Save",
+    "description": "This string appears across the application as a button.  It allows the user to submit some input"
+  },
+  "saved": {
+    "message": "Saved",
+    "description": "This string appears across the application as a transient notification toast.  It appears when user input has been accepted."
+  },
+  "saving": {
+    "message": "Saving...",
+    "description": "This string appears across the application as a transient notification toast.  It appears when user input is being processed."
   },
   "server_access": {
     "message": "Server access",
@@ -624,11 +760,11 @@
     "description": "This string appears within the server view as a header of the section that displays server information and access keys."
   },
   "server_data_transfer": {
-    "message": "Data transferred / 30 days",
+    "message": "Data transferred / last 30 days",
     "description": "This string appears within the server view as the header of a card that displays the amount of data transferred by the server."
   },
   "server_data_used": {
-    "message": "Allowance used / 30 days",
+    "message": "Allowance used / last 30 days",
     "description": "This string appears within the server view as the header of a card that displays the amount of data transferred by the server as a percentage of the total available data."
   },
   "server_destroy": {
@@ -702,7 +838,7 @@
     "description": "This string appears within a server view as a header. Displayed when a server's information cannot be displayed because it is not reachable. Prompts the user to retry contacting the server or destroy it."
   },
   "server_usage": {
-    "message": "Usage / 30 days",
+    "message": "Usage (last 30 days)",
     "description": "This string appears within the server view as a header of a table column that displays the breakdown of data usage by access key."
   },
   "servers_add": {
@@ -760,6 +896,10 @@
   "settings_server_rename": {
     "message": "Set a new name for your server. Note that this will not be reflected on the devices of the users that you invited to connect to it.",
     "description": "This string appears in the server settings view as a paragraph below the server's name. Informs the user about the implications of renaming a server."
+  },
+  "settings_server_version": {
+    "message": "Server version",
+    "description": "This string appears in the server settings view as a label for the server version."
   },
   "settings_transfer_limit": {
     "message": "Data transfer allowance",
@@ -876,6 +1016,22 @@
   "share_title": {
     "message": "Share access",
     "description": "This string appears as the header of a dialog that provides an invitation to share access to a server."
+  },
+  "survey_data_limits_title": {
+    "message": "Help us understand how to improve data limits",
+    "description": "This string appears as the title of a dialog that prompts the user to complete a survey about the data limits feature."
+  },
+  "survey_decline": {
+    "message": "Decline",
+    "description": "This string appears in a dialog that prompts the user to complete a survey. It is shown in a button that dismisses the dialog."
+  },
+  "survey_disclaimer": {
+    "message": "By clicking continue you will be sent to a short survey on Google Forms. We recommend taking the survey while connected to Outline.",
+    "description": "This string appears in a dialog that prompts the user to complete a survey as a disclaimer."
+  },
+  "survey_go_to_survey": {
+    "message": "Go to survey",
+    "description": "This string appears in a dialog that prompts the user to complete a survey. It is shown in a button that takes the user to the online survey."
   },
   "terms_of_service": {
     "message": "I have read and understood the $START_OF_LINK$Outline Terms of Service$END_OF_LINK$",

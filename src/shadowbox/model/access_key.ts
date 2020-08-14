@@ -18,38 +18,51 @@ export type AccessKeyMetricsId = string;
 // Parameters needed to access a Shadowsocks proxy.
 export interface ProxyParams {
   // Hostname of the proxy
-  hostname: string;
+  readonly hostname: string;
   // Number of the port where the Shadowsocks service is running.
-  portNumber: number;
+  readonly portNumber: number;
   // The Shadowsocks encryption method being used.
-  encryptionMethod: string;
+  readonly encryptionMethod: string;
   // The password for the encryption.
-  password: string;
+  readonly password: string;
+}
+
+// Data transfer allowance, measured in bytes. Must be a serializable JSON object.
+export interface DataLimit {
+  readonly bytes: number;
 }
 
 // AccessKey is what admins work with. It gives ProxyParams a name and identity.
 export interface AccessKey {
   // The unique identifier for this access key.
-  id: AccessKeyId;
+  readonly id: AccessKeyId;
   // Admin-controlled, editable name for this access key.
-  name: string;
+  readonly name: string;
   // Used in metrics reporting to decouple from the real id. Can change.
-  metricsId: AccessKeyMetricsId;
+  readonly metricsId: AccessKeyMetricsId;
   // Parameters to access the proxy
-  proxyParams: ProxyParams;
+  readonly proxyParams: ProxyParams;
+  // Whether the access key has exceeded the data transfer limit.
+  readonly isOverDataLimit: boolean;
 }
 
 export interface AccessKeyRepository {
   // Creates a new access key. Parameters are chosen automatically.
   createNewAccessKey(): Promise<AccessKey>;
-  // Removes the access key given its id.  Returns true if successful.
-  removeAccessKey(id: AccessKeyId): boolean;
+  // Removes the access key given its id. Throws on failure.
+  removeAccessKey(id: AccessKeyId);
   // Lists all existing access keys
-  listAccessKeys(): IterableIterator<AccessKey>;
-  // Apply the specified update to the specified access key.
-  // Returns true if successful.
-  renameAccessKey(id: AccessKeyId, name: string): boolean;
-
+  listAccessKeys(): AccessKey[];
+  // Changes the port for new access keys.
+  setPortForNewAccessKeys(port: number): Promise<void>;
+  // Changes the hostname for access keys.
+  setHostname(hostname: string): void;
+  // Apply the specified update to the specified access key. Throws on failure.
+  renameAccessKey(id: AccessKeyId, name: string): void;
   // Gets the metrics id for a given Access Key.
   getMetricsId(id: AccessKeyId): AccessKeyMetricsId|undefined;
+  // Sets a data transfer limit for all access keys.
+  setAccessKeyDataLimit(limit: DataLimit): Promise<void>;
+  // Removes the access key data transfer limit.
+  removeAccessKeyDataLimit(): Promise<void>;
 }

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as semver from 'semver';
+
 import * as errors from '../infrastructure/errors';
 import * as server from '../model/server';
 
@@ -28,6 +30,9 @@ export interface ServerConfig {
   serverId: string;
   createdTimestampMs: number;
   portForNewAccessKeys: number;
+  hostnameForAccessKeys: string;
+  version: string;
+  accessKeyDataLimit?: server.DataLimit;
 }
 
 export class ShadowboxServer implements server.Server {
@@ -60,6 +65,36 @@ export class ShadowboxServer implements server.Server {
     return this.apiRequest<void>('access-keys/' + accessKeyId, {method: 'DELETE'});
   }
 
+  async setAccessKeyDataLimit(limit: server.DataLimit): Promise<void> {
+    console.info(`Setting access key data limit: ${JSON.stringify(limit)}`);
+    const requestOptions = {
+      method: 'PUT',
+      headers: new Headers({'Content-Type': 'application/json'}),
+      body: JSON.stringify({limit})
+    };
+    await this.apiRequest<void>(this.getAccessKeyDataLimitPath(), requestOptions);
+    this.serverConfig.accessKeyDataLimit = limit;
+  }
+
+  async removeAccessKeyDataLimit(): Promise<void> {
+    console.info(`Removing access key data limit`);
+    await this.apiRequest<void>(this.getAccessKeyDataLimitPath(), {method: 'DELETE'});
+    delete this.serverConfig.accessKeyDataLimit;
+  }
+
+  getAccessKeyDataLimit(): server.DataLimit|undefined {
+    return this.serverConfig.accessKeyDataLimit;
+  }
+
+  private getAccessKeyDataLimitPath(): string {
+    const version = this.getVersion();
+    if (semver.gte(version, '1.4.0')) {
+      // Data limits became a permanent feature in shadowbox v1.4.0.
+      return 'server/access-key-data-limit';
+    }
+    return 'experimental/access-key-data-limit';
+  }
+
   getDataUsage(): Promise<server.DataUsageByAccessKey> {
     return this.apiRequest<server.DataUsageByAccessKey>('metrics/transfer');
   }
@@ -78,6 +113,10 @@ export class ShadowboxServer implements server.Server {
     return this.apiRequest<void>('name', requestOptions).then(() => {
       this.serverConfig.name = name;
     });
+  }
+
+  getVersion(): string {
+    return this.serverConfig.version;
   }
 
   getMetricsEnabled(): boolean {
@@ -124,9 +163,22 @@ export class ShadowboxServer implements server.Server {
     return new Date(this.serverConfig.createdTimestampMs);
   }
 
-  getHostname(): string {
+  async setHostnameForAccessKeys(hostname: string): Promise<void> {
+    console.info(`setHostname ${hostname}`);
+    this.serverConfig.hostnameForAccessKeys = hostname;
+    const requestOptions: RequestInit = {
+      method: 'PUT',
+      headers: new Headers({'Content-Type': 'application/json'}),
+      body: JSON.stringify({hostname})
+    };
+    return this.apiRequest<void>('server/hostname-for-access-keys', requestOptions).then(() => {
+      this.serverConfig.hostnameForAccessKeys = hostname;
+    });
+  }
+
+  getHostnameForAccessKeys(): string {
     try {
-      return new URL(this.managementApiAddress).hostname;
+      return this.serverConfig.hostnameForAccessKeys || new URL(this.managementApiAddress).hostname;
     } catch (e) {
       return '';
     }
@@ -141,6 +193,18 @@ export class ShadowboxServer implements server.Server {
     } catch (e) {
       return undefined;
     }
+  }
+
+  setPortForNewAccessKeys(newPort: number): Promise<void> {
+    console.info(`setPortForNewAccessKeys: ${newPort}`);
+    const requestOptions: RequestInit = {
+      method: 'PUT',
+      headers: new Headers({'Content-Type': 'application/json'}),
+      body: JSON.stringify({"port": newPort})
+    };
+    return this.apiRequest<void>('server/port-for-new-access-keys', requestOptions).then(() => {
+      this.serverConfig.portForNewAccessKeys = newPort;
+    });
   }
 
   private getServerConfig(): Promise<ServerConfig> {

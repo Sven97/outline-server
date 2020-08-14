@@ -12,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as events from 'events';
+import {EventEmitter} from 'eventemitter3';
 
 import * as digitalocean_api from '../cloud/digitalocean_api';
+import {InMemoryStorage} from '../infrastructure/memory_storage';
 import * as server from '../model/server';
+import {Surveys} from '../model/survey';
 
 import {App} from './app';
 import {TokenManager} from './digitalocean_oauth';
 import {DisplayServer, DisplayServerRepository, makeDisplayServer} from './display_server';
+import {AppRoot} from './ui_components/app-root.js';
+import {ServerView} from './ui_components/outline-server-view.js';
 
 const TOKEN_WITH_NO_SERVERS = 'no-server-token';
 const TOKEN_WITH_ONE_SERVER = 'one-server-token';
@@ -222,7 +226,6 @@ function createTestApp(
     manualServerRepo?: server.ManualServerRepository,
     displayServerRepository?: FakeDisplayServerRepository,
     managedServerRepository?: FakeManagedServerRepository) {
-  const WEB_APP_URL = 'outline://fakefakefake/';
   const VERSION = '0.0.1';
   const fakeDigitalOceanSessionFactory = (accessToken: string) => {
     return new FakeDigitalOceanSession(accessToken);
@@ -242,7 +245,7 @@ function createTestApp(
     displayServerRepository = new FakeDisplayServerRepository();
   }
   return new App(
-      polymerAppRoot, WEB_APP_URL, VERSION, fakeDigitalOceanSessionFactory,
+      polymerAppRoot, VERSION, fakeDigitalOceanSessionFactory,
       fakeDigitalOceanServerRepositoryFactory, manualServerRepo, displayServerRepository,
       digitalOceanTokenManager);
 }
@@ -256,14 +259,14 @@ enum AppRootScreen {
   DIALOG
 }
 
-// TODO: define the AppRoot type.  Currently app.ts just defines the Polymer
-// type as HTMLElement&any.
-class FakePolymerAppRoot {
-  events = new events.EventEmitter();
+class FakePolymerAppRoot extends AppRoot {
+  events = new EventEmitter();
   backgroundScreen = AppRootScreen.NONE;
   currentScreen = AppRootScreen.NONE;
-  serverView = {setServerTransferredData: () => {}, serverId: '', initHelpBubbles: () => {}};
+  serverView = {setServerTransferredData: () => {}, serverId: '', initHelpBubbles: () => {}} as
+      unknown as ServerView;
   serverList: DisplayServer[] = [];
+  is: 'fake-polymer-app-root';
 
   private setScreen(screenId: AppRootScreen) {
     this.currentScreen = screenId;
@@ -290,9 +293,9 @@ class FakePolymerAppRoot {
   showModalDialog() {
     this.backgroundScreen = this.currentScreen;
     this.setScreen(AppRootScreen.DIALOG);
-    const promise = new Promise(() => {});
+    const promise = new Promise<number>(() => 0);
     // Supress Promise not handled warning.
-    promise.then(() => {});
+    promise.then(v => v);
     return promise;
   }
 
@@ -304,7 +307,7 @@ class FakePolymerAppRoot {
     this.backgroundScreen = AppRootScreen.NONE;
   }
 
-  getServerView() {
+  getServerView(serverId: string): ServerView {
     return this.serverView;
   }
 
@@ -335,6 +338,9 @@ class FakeServer implements server.Server {
   setName(name: string) {
     this.name = name;
     return Promise.resolve();
+  }
+  getVersion() {
+    return '1.2.3';
   }
   listAccessKeys() {
     return Promise.resolve([]);
@@ -367,13 +373,28 @@ class FakeServer implements server.Server {
   removeAccessKey(accessKeyId: server.AccessKeyId) {
     return Promise.reject(new Error('FakeServer.removeAccessKey not implemented'));
   }
-  getHostname() {
+  setHostnameForAccessKeys(hostname: string) {
+    return Promise.reject(new Error('FakeServer.setHostname not implemented'));
+  }
+  getHostnameForAccessKeys() {
     return 'fake-server';
   }
   getManagementApiUrl() {
     return this.apiUrl || Math.random().toString();
   }
   getPortForNewAccessKeys(): number|undefined {
+    return undefined;
+  }
+  setPortForNewAccessKeys(): Promise<void> {
+    return Promise.reject(new Error('FakeServer.setPortForNewAccessKeys not implemented'));
+  }
+  setAccessKeyDataLimit(limit: server.DataLimit): Promise<void> {
+    return Promise.reject(new Error('FakeServer.setAccessKeyDataLimit not implemented'));
+  }
+  removeAccessKeyDataLimit(): Promise<void> {
+    return Promise.resolve();
+  }
+  getAccessKeyDataLimit(): server.DataLimit|undefined {
     return undefined;
   }
 }
@@ -501,30 +522,7 @@ class FakeDisplayServerRepository extends DisplayServerRepository {
   }
 }
 
-export class InMemoryStorage implements Storage {
-  readonly length: number;
-  [key: string]: {};
-  [index: number]: string;
-
-  constructor(private store: Map<string, string> = new Map<string, string>()) {}
-
-  clear(): void {
-    throw new Error('InMemoryStorage.clear not implemented');
-  }
-
-  getItem(key: string): string|null {
-    return this.store.get(key) || null;
-  }
-
-  key(index: number): string|null {
-    throw new Error('InMemoryStorage.key not implemented');
-  }
-
-  removeItem(key: string): void {
-    this.store.delete(key);
-  }
-
-  setItem(key: string, data: string): void {
-    this.store.set(key, data);
-  }
+class FakeSurveys implements Surveys {
+  async presentDataLimitsEnabledSurvey() {}
+  async presentDataLimitsDisabledSurvey() {}
 }

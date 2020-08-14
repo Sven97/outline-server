@@ -19,29 +19,36 @@ import * as mkdirp from 'mkdirp';
 import * as path from 'path';
 
 import * as logging from '../infrastructure/logging';
-import {AccessKey, ShadowsocksServer} from '../model/shadowsocks_server';
+import {ShadowsocksAccessKey, ShadowsocksServer} from '../model/shadowsocks_server';
 
 // Runs outline-ss-server.
 export class OutlineShadowsocksServer implements ShadowsocksServer {
   private ssProcess: child_process.ChildProcess;
   private ipCountryFilename = '';
+  private isReplayProtectionEnabled = false;
 
+  // binaryFilename is the location for the outline-ss-server binary.
   // configFilename is the location for the outline-ss-server config.
   constructor(
-      private readonly configFilename: string, private readonly verbose: boolean,
-      private readonly metricsLocation: string) {}
+      private readonly binaryFilename: string, private readonly configFilename: string,
+      private readonly verbose: boolean, private readonly metricsLocation: string) {}
 
   // Annotates the Prometheus data metrics with countries.
-  // ipCountryFilename is the location of the GeoLite2-Country.mmdb file.
+  // ipCountryFilename is the location of the ip-country.mmdb IP-to-country database file.
   enableCountryMetrics(ipCountryFilename: string): OutlineShadowsocksServer {
     this.ipCountryFilename = ipCountryFilename;
+    return this;
+  }
+
+  enableReplayProtection(): OutlineShadowsocksServer {
+    this.isReplayProtectionEnabled = true;
     return this;
   }
 
   // Promise is resolved after the outline-ss-config config is updated and the SIGHUP sent.
   // Keys may not be active yet.
   // TODO(fortuna): Make promise resolve when keys are ready.
-  update(keys: AccessKey[]): Promise<void> {
+  update(keys: ShadowsocksAccessKey[]): Promise<void> {
     return this.writeConfigFile(keys).then(() => {
       if (!this.ssProcess) {
         this.start();
@@ -52,9 +59,9 @@ export class OutlineShadowsocksServer implements ShadowsocksServer {
     });
   }
 
-  private writeConfigFile(keys: AccessKey[]): Promise<void> {
+  private writeConfigFile(keys: ShadowsocksAccessKey[]): Promise<void> {
     return new Promise((resolve, reject) => {
-      const keysJson = {keys: [] as AccessKey[]};
+      const keysJson = {keys: [] as ShadowsocksAccessKey[]};
       for (const key of keys) {
         if (!isAeadCipher(key.cipher)) {
           logging.error(`Cipher ${key.cipher} for access key ${
@@ -82,7 +89,10 @@ export class OutlineShadowsocksServer implements ShadowsocksServer {
     if (this.verbose) {
       commandArguments.push('-verbose');
     }
-    this.ssProcess = child_process.spawn('/root/shadowbox/bin/outline-ss-server', commandArguments);
+    if (this.isReplayProtectionEnabled) {
+      commandArguments.push('--replay_history=10000');
+    }
+    this.ssProcess = child_process.spawn(this.binaryFilename, commandArguments);
     this.ssProcess.on('error', (error) => {
       logging.error(`Error spawning outline-ss-server: ${error}`);
     });

@@ -14,21 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if (( $# <= 0 )); then
-  echo "No test data specified"
-  exit 1;
-fi
+readonly TEST_DIR="${BUILD_DIR}/js/metrics_server/"
+rm -rf $TEST_DIR
 
-yarn do metrics_server/build
+tsc -p $ROOT_DIR/src/metrics_server --outDir $TEST_DIR
+jasmine --config=$ROOT_DIR/jasmine.json
 
-cp src/metrics_server/config_test.json build/metrics_server/config.json
-
-# Because of weird issues with --local-path, have "functions deploy" search in the current
-# directory instead.
-pushd build/metrics_server
-functions deploy reportHourlyConnectionMetrics --trigger-http
-
-functions call reportHourlyConnectionMetrics --data=$1
-
-# Because the emulator ignores the response code, always print the logs to highlight any errors.
-functions logs read
+rm -rf $TEST_DIR

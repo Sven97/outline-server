@@ -30,6 +30,8 @@
 #
 # Each node runs on a different Docker container.
 
+set -x
+
 export DOCKER_CONTENT_TRUST=${DOCKER_CONTENT_TRUST:-1}
 
 readonly OUTPUT_DIR=$(mktemp -d)
@@ -62,7 +64,7 @@ function ss_arguments_for_user() {
 
 # Runs curl on the client container.
 function client_curl() {
-  docker exec $CLIENT_CONTAINER curl --silent --show-error "$@"
+  docker exec $CLIENT_CONTAINER curl --silent --show-error --connect-timeout 5 --retry 5 "$@"
 }
 
 function fail() {
@@ -72,24 +74,30 @@ function fail() {
 
 function cleanup() {
   status=$?
-  (($DEBUG != 0)) || docker-compose down
+  if ((DEBUG != 1)); then
+    docker-compose --project-name=integrationtest down
+    rm -rf ${TMP_STATE_DIR} || echo "Failed to cleanup files at ${TMP_STATE_DIR}"
+  fi
   return $status
 }
 
 # Start a subprocess for trap
 (
   set -eu
-  (($DEBUG != 0)) && set -x
-
-  # Make the certificate
-  source ../scripts/make_test_certificate.sh /tmp
+  ((DEBUG == 1)) && set -x
 
   # Ensure proper shut down on exit if not in debug mode
   trap "cleanup" EXIT
 
+  # Make the certificate
+  source ../scripts/make_test_certificate.sh /tmp
+
   # Sets everything up
   export SB_API_PREFIX=TestApiPrefix
-  docker-compose up --build -d
+  SB_API_URL=https://shadowbox/${SB_API_PREFIX}
+  export TMP_STATE_DIR=$(mktemp -d)
+  echo '{"hostname": "shadowbox"}' > ${TMP_STATE_DIR}/shadowbox_server_config.json
+  docker-compose --project-name=integrationtest up --build -d
 
   # Wait for target to come up.
   wait_for_resource localhost:10080
@@ -97,11 +105,11 @@ function cleanup() {
 
   # Verify that the client cannot access or even resolve the target
   # Exit code 28 for "Connection timed out".
-  docker exec $CLIENT_CONTAINER curl --silent --connect-timeout 1 $TARGET_IP > /dev/null && \
+  docker exec $CLIENT_CONTAINER curl --silent --connect-timeout 5 $TARGET_IP > /dev/null && \
     fail "Client should not have access to target IP" || (($? == 28))
 
   # Exit code 6 for "Could not resolve host".
-  docker exec $CLIENT_CONTAINER curl --silent --connect-timeout 1 http://target > /dev/null && \
+  docker exec $CLIENT_CONTAINER curl --silent --connect-timeout 5 http://target > /dev/null && \
     fail "Client should not have access to target host" || (($? == 6))
 
   # Wait for shadowbox to come up.
@@ -111,18 +119,18 @@ function cleanup() {
 
   # Create new shadowbox user.
   # TODO(bemasc): Verify that the server is using the right certificate
-  declare -r NEW_USER_JSON=$(client_curl --insecure -X POST https://shadowbox/${SB_API_PREFIX}/access-keys)
+  declare -r NEW_USER_JSON=$(client_curl --insecure -X POST ${SB_API_URL}/access-keys)
   [[ ${NEW_USER_JSON} == '{"id":"0"'* ]] || fail "Fail to create user"
   declare -r SS_USER_ARGUMENTS=$(ss_arguments_for_user $NEW_USER_JSON)
 
   # Verify that we handle deletions well
-  client_curl --insecure -X POST https://shadowbox/${SB_API_PREFIX}/access-keys > /dev/null
-  client_curl --insecure -X DELETE https://shadowbox/${SB_API_PREFIX}/access-keys/1 > /dev/null
+  client_curl --insecure -X POST ${SB_API_URL}/access-keys > /dev/null
+  client_curl --insecure -X DELETE ${SB_API_URL}/access-keys/1 > /dev/null
 
   # Start Shadowsocks client and wait for it to be ready
   declare -r LOCAL_SOCKS_PORT=5555
   docker exec -d $CLIENT_CONTAINER \
-    /go/bin/go-shadowsocks2 $SS_USER_ARGUMENTS -socks :$LOCAL_SOCKS_PORT -verbose \
+    /go/bin/go-shadowsocks2 $SS_USER_ARGUMENTS -socks localhost:$LOCAL_SOCKS_PORT -verbose \
     || fail "Could not start shadowsocks client"
   while ! docker exec $CLIENT_CONTAINER nc -z localhost $LOCAL_SOCKS_PORT; do
     sleep 0.1
@@ -138,11 +146,34 @@ function cleanup() {
     || fail "Could not fetch $INTERNET_TARGET_URL through shadowbox."
 
   # Verify we can't access the URL anymore after the key is deleted
-  client_curl --insecure -X DELETE https://shadowbox/${SB_API_PREFIX}/access-keys/0 > /dev/null
+  client_curl --insecure -X DELETE ${SB_API_URL}/access-keys/0 > /dev/null
   # Exit code 56 is "Connection reset by peer".
-  client_curl -x socks5h://localhost:$LOCAL_SOCKS_PORT --connect-timeout 1 $INTERNET_TARGET_URL &> /dev/null \
+  client_curl -x socks5h://localhost:$LOCAL_SOCKS_PORT $INTERNET_TARGET_URL &> /dev/null \
     && fail "Deleted access key is still active" || (($? == 56))
 
+  # Verify that we can change the port for new access keys
+  client_curl --insecure -X PUT -H "Content-Type: application/json" -d '{"port": 12345}' ${SB_API_URL}/server/port-for-new-access-keys \
+    || fail "Couldn't change the port for new access keys"
+
+  ACCESS_KEY_JSON=$(client_curl --insecure -X POST ${SB_API_URL}/access-keys \
+    || fail "Couldn't get a new access key after changing port")
+  
+  if [[ "${ACCESS_KEY_JSON}" != *'"port":12345'* ]]; then
+    fail "Port for new access keys wasn't changed.  Newly created access key: ${ACCESS_KEY_JSON}"
+  fi
+
+  # Verify that we can change the hostname for new access keys
+  NEW_HOSTNAME="newhostname"
+  client_curl --insecure -X PUT -H 'Content-Type: application/json' -d '{"hostname": "'${NEW_HOSTNAME}'"}' ${SB_API_URL}/server/hostname-for-access-keys \
+    || fail "Couldn't change hostname for new access keys"
+
+  ACCESS_KEY_JSON=$(client_curl --insecure -X POST ${SB_API_URL}/access-keys \
+    || fail "Couldn't get a new access key after changing hostname")
+  
+  if [[ "${ACCESS_KEY_JSON}" != *"@${NEW_HOSTNAME}:"* ]]; then
+    fail "Hostname for new access keys wasn't changed.  Newly created access key: ${ACCESS_KEY_JSON}"
+  fi
+  
   # Verify no errors occurred.
   readonly SHADOWBOX_LOG=$OUTPUT_DIR/shadowbox-log.txt
   if docker logs $SHADOWBOX_CONTAINER 2>&1 | tee $SHADOWBOX_LOG | egrep -q "^E|level=error|ERROR:"; then

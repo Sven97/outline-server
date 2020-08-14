@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {InMemoryStorage} from './app.spec';
-import {DisplayServer, DisplayServerRepository} from './display_server';
+import {InMemoryStorage} from '../infrastructure/memory_storage';
+import {DisplayServerRepository} from './display_server';
 
 // Use this helper to compare `DisplayServer`s when we don't care about the
 // `isSynced` property.
@@ -110,7 +110,7 @@ describe('DisplayServerRepository', () => {
 
     // Instantiate a new repository to validate that servers have been persisted to storage.
     repository = new DisplayServerRepository(storage);
-    expect(objectContaining(displayServer)).toEqual(repository.findServer(displayServer.id));
+    expect(repository.findServer(displayServer.id)).toEqual(objectContaining(displayServer));
   });
 
   it('persists the last displayed server ID', () => {
